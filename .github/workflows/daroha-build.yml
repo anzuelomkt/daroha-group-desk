@@ -1,0 +1,17 @@
+name: Daroha Group - compilar clientes
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Etiqueta del release (prerelease) donde se suben los instaladores"
+        default: "daroha-1.5.3"
+
+jobs:
+  build:
+    uses: ./.github/workflows/flutter-build.yml
+    secrets: inherit
+    with:
+      upload-artifact: true
+      upload-tag: ${{ inputs.tag }}
+      publish-update-metadata: false
