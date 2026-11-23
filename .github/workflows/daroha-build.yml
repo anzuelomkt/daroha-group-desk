@@ -17,3 +17,28 @@ jobs:
       upload-artifact: true
       upload-tag: ${{ inputs.tag }}
       publish-update-metadata: false
+
+  rename-assets:
+    # Renombra rustdesk-* -> DarohaGroup-* en el release (aunque falle alguna plataforma)
+    needs: build
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ inputs.tag }}
+    steps:
+      - name: Renombrar archivos del release
+        run: |
+          gh api "repos/${{ github.repository }}/releases/tags/$TAG" --jq '.assets[] | "\(.id) \(.name)"' |
+          while read -r id name; do
+            case "$name" in
+              rustdesk-*)
+                new="DarohaGroup-${name#rustdesk-}"
+                new="${new/-signed.apk/.apk}"
+                echo "$name -> $new"
+                gh api -X PATCH "repos/${{ github.repository }}/releases/assets/$id" -f name="$new" >/dev/null
+                ;;
+            esac
+          done

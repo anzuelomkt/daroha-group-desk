@@ -471,7 +471,10 @@ jobs:
           sed -i '/dpiAware/d' res/manifest.xml
           pushd ./libs/portable
           pip3 install -r requirements.txt
-          python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/rustdesk.exe
+          # Daroha: el ejecutable interno se llama como la app, asi se extrae en
+          # %LOCALAPPDATA%\daroha group y no choca con RustDesk oficial.
+          mv ../../rustdesk/rustdesk.exe "../../rustdesk/Daroha Group.exe"
+          python3 ./generate.py -f ../../rustdesk/ -o . -e "../../rustdesk/Daroha Group.exe"
           popd
           mkdir -p ./SignOutput
           mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.exe
